@@ -6,7 +6,7 @@ from exwidgets.constants import *
 from pathlib import Path
 from utils import *
 from audio import get_file_dict, get_tags
-import subprocess, sys, re, meta
+import subprocess, sys, re
 
 Root = Tk()
 
