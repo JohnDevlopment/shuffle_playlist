@@ -2,14 +2,12 @@
 
 from setuptools import setup, find_packages
 
-print(find_packages())
-
 setup(
     name = 'shuffle_playlist',
-    version = '0.1',
+    version = '0.2',
     description = 'Creates a shuffled playlist',
     packages = find_packages(),
-    py_modules = ['meta', 'utils', 'shuffle_playlist'],
+    py_modules = ['audio', 'utils', 'shuffle_playlist'],
     entry_points = {
         'console_scripts': ['shuffle_playlist = shuffle_playlist:main']
     }
