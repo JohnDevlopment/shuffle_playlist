@@ -3,6 +3,7 @@
 from soundfile import SoundFile
 from mutagen.oggvorbis import OggVorbis
 from pathlib import PurePath
+from typing import Protocol
 
 class ExSoundFile(SoundFile):
     @property
@@ -14,6 +15,17 @@ def get_tags(filename: str) -> OggVorbis:
     """Get meta tags for the given FILENAME."""
     return OggVorbis(filename)
 
+AUDIO_FACTORIES = {
+    'ogg': OggVorbis
+}
+
+class TagsFactory(Protocol):
+    """"""
+
+    def __init__(self, filename: str):
+        """"""
+        ...
+
 def get_file_dict(filename: str) -> dict:
     """
     Return a dictionary with information about FILENAME.
@@ -23,6 +35,13 @@ def get_file_dict(filename: str) -> dict:
         * title (str, None) - the title of the song, or None if unavailable
         * filename (str) - the name of the file with the leading path removed
     """
+    ext = str(PurePath(filename).suffix)
+
+    try:
+        TagClass = AUDIO_FACTORIES[ext]
+    except KeyError:
+        
+
     ogg = ExSoundFile(filename)
     res = {
         'length': ogg.seconds,
@@ -30,6 +49,7 @@ def get_file_dict(filename: str) -> dict:
         'title': None
     }
     oggtags = get_tags(filename)
+    oggtagslist = oggtags.keys()
 
     # Get title
     try:

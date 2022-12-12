@@ -4,7 +4,7 @@ from tkinter import Tk, StringVar, ttk
 from exwidgets.entry import ExEntry
 from exwidgets.constants import *
 from pathlib import Path
-from utils import *
+from .utils import *
 import sys, playlists as pl
 
 def write_playlist(files: list, titleVar: StringVar, outputVar: StringVar):
@@ -39,11 +39,11 @@ def interface():
 
     files = []
     temp = sys.argv[1:]
-    for file in temp:
-        file = Path(file)
-        file = file.resolve(True)
-        if file.exists():
-            files.append(file)
+    for _file in temp:
+        _file = Path(_file)
+        _file = _file.resolve(True)
+        if _file.exists():
+            files.append(_file)
     del temp
 
     _check_arguments(files)
