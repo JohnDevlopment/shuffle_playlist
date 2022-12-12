@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-from tkinter import Tk, Listbox, StringVar, ttk
+from tkinter import Tk, StringVar, ttk
 from exwidgets.entry import ExEntry
 from exwidgets.constants import *
 from pathlib import Path
 from utils import *
 from audio import get_file_dict, get_tags
-import subprocess, sys, re
-
-Root = Tk()
+import sys, playlists as pl
 
 def write_playlist(files: list, title, output):
     """Writes the playlist to file."""
@@ -90,5 +88,11 @@ def interface():
 
     Root.after_idle(lambda: enTitle.focus())
 
-interface()
-Root.mainloop()
+def main():
+    global Root
+    Root = Tk()
+    interface()
+    Root.mainloop()
+
+if __name__ == "__main__":
+    main()
