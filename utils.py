@@ -5,7 +5,7 @@ Functions:
     * shuffle_playlist()
 """
 
-from typing import Protocol, Union, runtime_checkable
+from typing import Protocol, Union
 import random
 
 class CommandlineError(RuntimeError):
@@ -13,6 +13,12 @@ class CommandlineError(RuntimeError):
 
 class StringInputError(RuntimeError):
     pass
+
+class FileDescriptor(Protocol):
+    """Describes a file descriptor."""
+
+    def write(self, data: Union[str, bytes]):
+        """Write DATA to file."""
 
 def shuffle_list(values: list) -> list:
     """Shuffles the items in a list."""
