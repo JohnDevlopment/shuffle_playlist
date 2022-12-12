@@ -9,10 +9,10 @@ from typing import Protocol, Union
 import random
 
 class CommandlineError(RuntimeError):
-    pass
+    """An error for wrong commandline arguments."""
 
 class StringInputError(RuntimeError):
-    pass
+    """An error for invalid string input."""
 
 class FileDescriptor(Protocol):
     """Describes a file descriptor."""
