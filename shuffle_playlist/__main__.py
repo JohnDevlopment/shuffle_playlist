@@ -2,10 +2,11 @@
 
 from tkinter import Tk, StringVar, ttk
 from exwidgets.entry import ExEntry
-from exwidgets.constants import *
+from exwidgets.constants import BOTH
 from pathlib import Path
 from .utils import *
-import sys, playlists as pl
+from .playlists import get_playlist as pl_get_playlist, write_playlist as pl_write_playlist
+import sys
 
 def write_playlist(files: list, titleVar: StringVar, outputVar: StringVar):
     """Writes the playlist to file."""
@@ -21,9 +22,9 @@ def write_playlist(files: list, titleVar: StringVar, outputVar: StringVar):
         raise StringInputError("Output file is empty or lacks the .m3u extension")
 
     # Gather entry list
-    PlaylistClass = pl.get_playlist(Path(output))
+    PlaylistClass = pl_get_playlist(output)
     playlist = PlaylistClass(shuffle_list(files))
-    pl.write_playlist(playlist, output)
+    pl_write_playlist(playlist, output)
 
     Root.destroy()
 
