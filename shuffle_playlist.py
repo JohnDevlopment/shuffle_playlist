@@ -57,6 +57,11 @@ def write_playlist(files: list, title, output):
 
     Root.destroy()
 
+def _check_arguments(files: list):
+    # No file arguments
+    if len(files) == 0:
+        raise CommandlineError("No files were provided")
+
 def interface():
     Root.title('Create Playlist')
 
@@ -71,6 +76,8 @@ def interface():
         if file.exists():
             files.append(file)
     del temp
+
+    _check_arguments(files)
 
     enTitle = ExEntry(subframe, label='Title', width=100,
                       textvariable=(evar1 := StringVar()))
