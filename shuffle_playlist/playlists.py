@@ -1,73 +1,166 @@
 """Module for writing playlists."""
 
-from typing import Protocol, Union
+from typing import Union, cast, TypeVar, Type
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from pathlib import Path
-import re, audio
+from .audio import get_file_dict, get_tags
+import re
 
-class Playlist(Protocol):
-    """Protocol for writing playlists to file."""
-
-    @property
-    def string(self) -> str:
-        return ""
+## Playlist entries
 
 class PlaylistEntry(ABC):
     """Abstract class representing an entry in a playlist."""
 
+    __slots__ = ('channels', 'filename', 'length', 'metadata', 'samplerate')
+
     def __init__(self, p: Path):
         self.filename: str = str(p)
         self.length: float = 0
-        self.tags: dict = {}
-        #artistsep_re = re.compile(r'\s*-\s*')
-        #artistsep_re.sub(': ', item['title']),
-        #round(item['length']),
-        #item['filename']
+        self.metadata: dict = {}
+        self.samplerate: float = 0
+        self.channels: int = 0
+
+    @abstractmethod
+    def get_format(self) -> str:
+        """Return a string detailing the file format."""
+        ...
 
 class PlaylistOggEntry(PlaylistEntry):
     """An Ogg Vorbis file playlist entry."""
 
     def __init__(self, p: Path):
         super().__init__(p)
-        tags = audio.get_tags(str(p))
-        self.tags = tags.tags.as_dict()
+        tagParser = get_tags(str(p))
+        info = tagParser.get_info()
+        self.filename = str(p)
+        self.length = info['length']
+        self.samplerate = info['samplerate']
+        self.channels = info['channels']
+        self.metadata = tagParser.get_tags()
 
-    @property
-    def title(self) -> Union[str, None]:
-        """"""
-        title: str = self.tags.get('title', None)
-        return title
+    def get_format(self) -> str:
+        return "Ogg Vorbis"
 
-class M3UPlaylist:
+## Playlists
+
+class Playlist(ABC):
+    """Base class that represents a playlist."""
+
+    def __init__(self, items: list[Path], title=None):
+        """
+        Construct a playlist from file.
+
+        Being that it is an abstract class,
+        Playlist has to be subclassed, and its
+        abstract methods have to be overriden.
+        """
+        self.entries: list[PlaylistEntry] = []
+        for item in items:
+            cls = get_playlist_entry(str(item))
+            item = cls(item)
+            self.entries.append(item)
+
+    @abstractmethod
+    def get_string(self) -> str:
+        """Return the playlist file as a string."""
+
+class M3UPlaylist(Playlist):
     """Represents a M3u playlist format."""
 
-    def __init__(self, items: list):
+    _artist_re: re.Pattern = re.compile(r'\s*-\s*')
+
+    def __init__(self, items: list[Path]):
         """
-        Construct M3u playlist from ITEMS.
+        Construct m3u playlist from ITEMS.
 
         Each index in ITEMS should be a Path to a file.
         """
-        self.entries = [PlaylistOggEntry(item) for item in items]
+        super().__init__(items)
 
-    @property
-    def string(self) -> str:
-        """Formatted M3U playlist text."""
-        msg = "#EXTM3U\n#PLAYLIST:{title}\n"
+    def __make_file_entry(self, entry: PlaylistEntry) -> str:
+        # Artist (optional), title
+        title: str = entry.metadata.get('title') or ''
+        if not title:
+            title = Path(entry.filename).stem
+
+        artist: str = entry.metadata.get('artist') or ''
+        if artist:
+            artist = f"{artist} - "
+
+        res = "#EXTINF:%d,%s%s\n" % \
+            (round(entry.length), artist, self._artist_re.sub(': ', title))
+
+        # Absolute path to the file
+        res += entry.filename.replace(' ', '%20')
+
+        return res + "\n"
+
+    def get_string(self) -> str:
+        msg = "#EXTM3U\n"
 
         for entry in self.entries:
-            artist = entry.tags
+            msg += self.__make_file_entry(entry)
+        return msg
 
-        #.replace(' ', '%20')
+PLAYLIST_FACTORIES = {
+    'm3u': M3UPlaylist
+}
 
-        #for entry in entries:
-        #    entry.update(get_tags(entry['filename'].replace('%20', ' ')))
-        #    artist = entry.get('artist')
-        #    entry['artist'] = f"{artist} - " if artist is not None else ''
-        #    fd.write("#EXTINF:{length},{artist}{title}\n{filename}\n".format(**entry))
-        return ""
+PLAYLIST_ENTRY_FACTORIES = {
+    'ogg': PlaylistOggEntry
+}
+
+PlaylistType = TypeVar('PlaylistType')
+
+_ext_re = re.compile(r'\.(\w+)')
+
+def get_playlist(filename: str) -> PlaylistType:
+    """
+    Return the correct playlist type according to P.
+
+    The returned type can be constructed with a list
+    of paths as the argument.
+
+    >>> filename = "playlist.m3u"
+    >>> files = [Path("file1.ogg"), Path("file2.wav")]
+    >>> cls = get_playlist(filename)
+    >>> obj = cls(files)
+    """
+    m = _ext_re.fullmatch(filename)
+    if not m:
+        raise ValueError(f"invalid filename '{filename}': no extension")
+    ext: str = m[1]
+
+    res = PLAYLIST_FACTORIES.get(ext, None)
+    if res is None:
+        raise ValueError(f"invalid extension '{ext}'", filename)
+
+    return cast(PlaylistType, res)
+
+def get_playlist_entry(filename: str) -> Type[PlaylistEntry]:
+    """
+    Return the correct playlist entry type according to FILENAME.
+
+    The returned type can be constructed with FILENAME as the argument.
+
+    >>> files = [Path("file1.ogg"), Path("file2.wav")]
+    >>> for _file in files:
+    >>>     plentryt = get_playlist_entry(_file)
+    >>>     plentry = plentryt(_file)
+    """
+    m = _ext_re.fullmatch(filename)
+    if not m:
+        raise ValueError(f"invalid filename {filename}: no extension")
+    ext: str = m[1]
+
+    res = PLAYLIST_ENTRY_FACTORIES.get(ext)
+    if res is None:
+        raise ValueError(f"invalid extension '{ext}'", filename)
+
+    return res
 
 def write_playlist(pl: Playlist, filename: str):
     """Write PL to FILENAME."""
     with open(filename, 'wt') as fd:
-        fd.write(pl.string)
+        fd.write(pl.get_string())
