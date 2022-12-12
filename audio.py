@@ -11,9 +11,18 @@ class ExSoundFile(SoundFile):
         return float(self.frames * self.channels) / float(self.samplerate)
 
 def get_tags(filename: str) -> OggVorbis:
+    """Get meta tags for the given FILENAME."""
     return OggVorbis(filename)
 
 def get_file_dict(filename: str) -> dict:
+    """
+    Return a dictionary with information about FILENAME.
+
+    The returned dictionary contains the following:
+        * length (float) - the length of the song in seconds
+        * title (str, None) - the title of the song, or None if unavailable
+        * filename (str) - the name of the file with the leading path removed
+    """
     ogg = ExSoundFile(filename)
     res = {
         'length': ogg.seconds,
