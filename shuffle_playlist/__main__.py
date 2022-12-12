@@ -21,7 +21,8 @@ def write_playlist(files: list, titleVar: StringVar, outputVar: StringVar):
         raise StringInputError("Output file is empty or lacks the .m3u extension")
 
     # Gather entry list
-    playlist = pl.M3UPlaylist(shuffle_list(files))
+    PlaylistClass = pl.get_playlist(Path(output))
+    playlist = PlaylistClass(shuffle_list(files))
     pl.write_playlist(playlist, output)
 
     Root.destroy()
