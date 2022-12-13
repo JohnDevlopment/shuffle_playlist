@@ -112,9 +112,7 @@ PLAYLIST_ENTRY_FACTORIES = {
     'ogg': PlaylistOggEntry
 }
 
-PlaylistType = TypeVar('PlaylistType')
-
-def get_playlist(filename: str) -> PlaylistType:
+def get_playlist(filename: str | Path) -> Type[Playlist]:
     """
     Return the correct playlist type according to P.
 
@@ -126,15 +124,19 @@ def get_playlist(filename: str) -> PlaylistType:
     >>> cls = get_playlist(filename)
     >>> obj = cls(files)
     """
-    ext = get_file_extension(filename)
-    if ext is None:
+    if isinstance(filename, Path):
+        ext = str(filename.suffix)[1:]
+    else:
+        ext = get_file_extension(filename)
+
+    if not ext:
         raise ValueError(f"invalid filename '{filename}': no extension")
 
     res = PLAYLIST_FACTORIES.get(ext, None)
     if res is None:
         raise ValueError(f"invalid extension '{ext}'", filename)
 
-    return cast(PlaylistType, res)
+    return cast(Type[Playlist], res)
 
 def get_playlist_entry(filename: str) -> Type[PlaylistEntry]:
     """
