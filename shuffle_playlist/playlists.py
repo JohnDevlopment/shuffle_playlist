@@ -48,7 +48,7 @@ class PlaylistOggEntry(PlaylistEntry):
 class Playlist(ABC):
     """Base class that represents a playlist."""
 
-    def __init__(self, items: list[Path], title=None):
+    def __init__(self, items: list[Path], *, title=None):
         """
         Construct a playlist from file.
 
@@ -57,6 +57,7 @@ class Playlist(ABC):
         abstract methods have to be overriden.
         """
         self.entries: list[PlaylistEntry] = []
+        self.title: str | None = title
         for item in items:
             cls = get_playlist_entry(str(item))
             item = cls(item)
@@ -71,13 +72,13 @@ class M3UPlaylist(Playlist):
 
     _artist_re: re.Pattern = re.compile(r'\s*-\s*')
 
-    def __init__(self, items: list[Path]):
+    def __init__(self, items: list[Path], **kw):
         """
         Construct m3u playlist from ITEMS.
 
         Each index in ITEMS should be a Path to a file.
         """
-        super().__init__(items)
+        super().__init__(items, **kw)
 
     def __make_file_entry(self, entry: PlaylistEntry) -> str:
         # Artist (optional), title
@@ -99,6 +100,9 @@ class M3UPlaylist(Playlist):
 
     def get_string(self) -> str:
         msg = "#EXTM3U\n"
+
+        if self.title:
+            msg += f"#PLAYLIST:{self.title}\n"
 
         for entry in self.entries:
             msg += self.__make_file_entry(entry)
