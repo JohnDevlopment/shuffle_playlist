@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
-from tkinter import Tk, StringVar, ttk
-from exwidgets.entry import ExEntry
-from exwidgets.constants import BOTH
+from argparse import ArgumentParser
 from pathlib import Path
 from .utils import *
 from .playlists import get_playlist as pl_get_playlist, write_playlist as pl_write_playlist
 import sys
 
-def write_playlist(files: list, titleVar: StringVar, outputVar: StringVar):
-    """Writes the playlist to file."""
+"""
+def write_playlist(files: list, **kw):
     # Params
      # Title
     title: str = titleVar.get()
@@ -27,50 +25,26 @@ def write_playlist(files: list, titleVar: StringVar, outputVar: StringVar):
     pl_write_playlist(playlist, output)
 
     Root.destroy()
-
-def _check_arguments(files: list):
-    # No file arguments
-    if len(files) == 0:
-        raise CommandlineError("No files were provided")
-
-def interface():
-    Root.title('Create Playlist')
-
-    subframe = ttk.Frame()
-    subframe.pack(fill=BOTH)
-
-    files = []
-    temp = sys.argv[1:]
-    for _file in temp:
-        _file = Path(_file)
-        _file = _file.resolve(True)
-        if _file.exists():
-            files.append(_file)
-    del temp
-
-    _check_arguments(files)
-
-    enTitle = ExEntry(subframe, label='Title', width=100,
-                      textvariable=(evar1 := StringVar()))
-
-    enOutput = ExEntry(subframe, label='Output File', width=100,
-                       textvariable=(evar2 := StringVar()))
-    evar2.set('playlist.m3u')
-
-    button = ttk.Button(subframe, text='Create Playlist',
-                        command=lambda: write_playlist(files, evar1, evar2))
-
-    enTitle.pack()
-    enOutput.pack()
-    button.pack()
-
-    Root.after_idle(lambda: enTitle.focus())
+"""
 
 def main():
-    global Root
-    Root = Tk()
-    interface()
-    Root.mainloop()
+    # Main function.
+    parser = ArgumentParser(prog='shuffle_playlist')
+    parser.add_argument('-t', '--title', help='')
+    parser.add_argument('OUTPUT', type=Path, help='file to write playlist to')
+    parser.add_argument('FILE', nargs='+', type=Path,
+                        help='files to add to playlist')
+
+    args = parser.parse_args()
+
+    # Gather entry list
+    files: list[Path] = args.FILE
+    output: Path = args.OUTPUT
+
+    PlaylistClass = pl_get_playlist(output)
+    playlist = PlaylistClass(shuffle_list(files))
+
+    print(playlist.get_string())
 
 if __name__ == "__main__":
     main()
