@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from pathlib import Path
 from .audio import get_file_dict, get_tags
+from .utils import get_file_extension
 import re
 
 ## Playlist entries
@@ -113,8 +114,6 @@ PLAYLIST_ENTRY_FACTORIES = {
 
 PlaylistType = TypeVar('PlaylistType')
 
-_ext_re = re.compile(r'\.(\w+)')
-
 def get_playlist(filename: str) -> PlaylistType:
     """
     Return the correct playlist type according to P.
@@ -127,10 +126,9 @@ def get_playlist(filename: str) -> PlaylistType:
     >>> cls = get_playlist(filename)
     >>> obj = cls(files)
     """
-    m = _ext_re.fullmatch(filename)
-    if not m:
+    ext = get_file_extension(filename)
+    if ext is None:
         raise ValueError(f"invalid filename '{filename}': no extension")
-    ext: str = m[1]
 
     res = PLAYLIST_FACTORIES.get(ext, None)
     if res is None:
@@ -149,10 +147,9 @@ def get_playlist_entry(filename: str) -> Type[PlaylistEntry]:
     >>>     plentryt = get_playlist_entry(_file)
     >>>     plentry = plentryt(_file)
     """
-    m = _ext_re.fullmatch(filename)
-    if not m:
-        raise ValueError(f"invalid filename {filename}: no extension")
-    ext: str = m[1]
+    ext = get_file_extension(filename)
+    if ext is None:
+        raise ValueError(f"invalid filename '{filename}': no extension")
 
     res = PLAYLIST_ENTRY_FACTORIES.get(ext)
     if res is None:
