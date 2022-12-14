@@ -116,24 +116,16 @@ PLAYLIST_ENTRY_FACTORIES = {
     'ogg': PlaylistOggEntry
 }
 
-def get_playlist(filename: str | Path) -> Type[Playlist]:
+def get_playlist(_format: str) -> Type[Playlist]:
     """
     Return the correct playlist type according to P.
 
     The returned type can be constructed with a list
     of paths as the argument.
     """
-    if isinstance(filename, Path):
-        ext = str(filename.suffix)[1:]
-    else:
-        ext = get_file_extension(filename)
-
-    if not ext:
-        raise ValueError(f"invalid filename '{filename}': no extension")
-
-    res = PLAYLIST_FACTORIES.get(ext, None)
+    res = PLAYLIST_FACTORIES.get(_format, None)
     if res is None:
-        raise ValueError(f"invalid extension '{ext}'", filename)
+        raise ValueError(f"invalid extension '{_format}'")
 
     return cast(Type[Playlist], res)
 
