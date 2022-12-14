@@ -8,7 +8,7 @@ from .playlists import get_playlist as pl_get_playlist
 
 def main():
     # Main function.
-    parser = ArgumentParser(prog='shuffle_playlist')
+    parser = ArgumentParser(prog='shuffle_playlist', description="A tool for creating shuffled playlists")
     parser.add_argument('-t', '--title', help='set the title of the playlist')
     parser.add_argument('-f', '--format', help='playlist format')
     parser.add_argument('OUTPUT', help='file to write playlist to')
