@@ -30,12 +30,11 @@ def get_file_extension(_file: Path | str) -> Optional[str]:
     Returns a string unless _FILE is a string and there is
     not extension, in which case it returns None.
     """
-    t = type(_file)
-    if t == Path:
+    if isinstance(_file, Path):
         pfile = cast(Path, _file)
-        res = str(pfile)
-        return res[1:]
-    elif t == str:
+        res = str(pfile.suffix)
+        return res[1:] or None
+    elif (_file, str):
         sfile = cast(str, _file)
         m = _ext_re.search(sfile)
         return m[1] if m else None
