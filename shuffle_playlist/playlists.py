@@ -122,11 +122,6 @@ def get_playlist(filename: str | Path) -> Type[Playlist]:
 
     The returned type can be constructed with a list
     of paths as the argument.
-
-    >>> filename = "playlist.m3u"
-    >>> files = [Path("file1.ogg"), Path("file2.wav")]
-    >>> cls = get_playlist(filename)
-    >>> obj = cls(files)
     """
     if isinstance(filename, Path):
         ext = str(filename.suffix)[1:]
@@ -147,11 +142,6 @@ def get_playlist_entry(filename: str) -> Type[PlaylistEntry]:
     Return the correct playlist entry type according to FILENAME.
 
     The returned type can be constructed with FILENAME as the argument.
-
-    >>> files = [Path("file1.ogg"), Path("file2.wav")]
-    >>> for _file in files:
-    >>>     plentryt = get_playlist_entry(_file)
-    >>>     plentry = plentryt(_file)
     """
     ext = get_file_extension(filename)
     if ext is None:
@@ -162,8 +152,3 @@ def get_playlist_entry(filename: str) -> Type[PlaylistEntry]:
         raise ValueError(f"invalid extension '{ext}'", filename)
 
     return res
-
-def write_playlist(pl: Playlist, filename: str):
-    """Write PL to FILENAME."""
-    with open(filename, 'wt') as fd:
-        fd.write(pl.get_string())
