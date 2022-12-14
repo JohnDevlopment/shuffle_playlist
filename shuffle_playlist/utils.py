@@ -23,10 +23,22 @@ class FileDescriptor(Protocol):
 
 _ext_re = re.compile(r'\.(\w+)')
 
-def get_file_extension(_file: str) -> str | None:
-    m = _ext_re.search(_file)
-    if not m: return None
-    return m[1]
+def get_file_extension(_file: Path | str) -> Optional[str]:
+    """
+    Get the extension of _FILE.
+
+    Returns a string unless _FILE is a string and there is
+    not extension, in which case it returns None.
+    """
+    t = type(_file)
+    if t == Path:
+        pfile = cast(Path, _file)
+        res = str(pfile)
+        return res[1:]
+    elif t == str:
+        sfile = cast(str, _file)
+        m = _ext_re.search(sfile)
+        return m[1] if m else None
 
 def shuffle_list(values: list) -> list:
     """Shuffles the items in a list."""
