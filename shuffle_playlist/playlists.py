@@ -1,10 +1,14 @@
-"""Module for writing playlists."""
+"""
+Playlists and playlist entries.
 
-from typing import Union, cast, TypeVar, Type
-from dataclasses import dataclass
+Do not instance any of the classes directly; instead,
+use get_playlist() and get_playlist_entry().
+"""
+
+from typing import cast, Type
 from abc import ABC, abstractmethod
 from pathlib import Path
-from .audio import get_file_dict, get_tags
+from .audio import get_tags
 from .utils import get_file_extension
 import re
 
@@ -77,6 +81,8 @@ class M3UPlaylist(Playlist):
         Construct m3u playlist from ITEMS.
 
         Each index in ITEMS should be a Path to a file.
+
+        **KW is captures keyword options for Playlist.
         """
         super().__init__(items, **kw)
 
@@ -108,6 +114,9 @@ class M3UPlaylist(Playlist):
             msg += self.__make_file_entry(entry)
         return msg
 
+PlaylistType = Type[Playlist]
+PlaylistEntryType = Type[PlaylistEntry]
+
 PLAYLIST_FACTORIES = {
     'm3u': M3UPlaylist
 }
@@ -116,20 +125,20 @@ PLAYLIST_ENTRY_FACTORIES = {
     'ogg': PlaylistOggEntry
 }
 
-def get_playlist(_format: str) -> Type[Playlist]:
+def get_playlist(_format: str) -> PlaylistType:
     """
-    Return the correct playlist type according to P.
+    Return the correct playlist type according to _FORMAT.
 
     The returned type can be constructed with a list
     of paths as the argument.
     """
-    res = PLAYLIST_FACTORIES.get(_format, None)
+    res = PLAYLIST_FACTORIES.get(_format)
     if res is None:
         raise ValueError(f"invalid extension '{_format}'")
 
-    return cast(Type[Playlist], res)
+    return res
 
-def get_playlist_entry(filename: str) -> Type[PlaylistEntry]:
+def get_playlist_entry(filename: str) -> PlaylistEntryType:
     """
     Return the correct playlist entry type according to FILENAME.
 
