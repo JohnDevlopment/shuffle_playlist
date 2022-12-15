@@ -2,6 +2,7 @@
 Utility functions and classes.
 
 Functions:
+    * get_file_extension()
     * shuffle_playlist()
 """
 
@@ -10,7 +11,16 @@ from pathlib import Path
 import random, re
 
 class CommandlineError(RuntimeError):
-    """An error for wrong commandline arguments."""
+    """
+    An error for wrong commandline arguments.
+
+    USER_DATA can be used to provide user data, which
+    the user can.
+    """
+
+    def __init__(self, *args, user_data=None, **kw):
+        self.user_data = user_data
+        super().__init__(*args, **kw)
 
 class StringInputError(RuntimeError):
     """An error for invalid string input."""
