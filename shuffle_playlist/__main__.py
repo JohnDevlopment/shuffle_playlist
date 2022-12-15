@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from dataclasses import dataclass
 from .utils import *
 from .playlists import get_playlist as pl_get_playlist
@@ -14,7 +14,7 @@ class Parameters:
     files: list[Path]
     output: Path | str
     format_: str
-    args: Namespace
+    title: Optional[str]
 
 def parse_commandline(*_argv: str):
     parser = ArgumentParser(prog='shuffle_playlist', description="A tool for creating shuffled playlists")
@@ -24,7 +24,10 @@ def parse_commandline(*_argv: str):
     parser.add_argument('FILE', nargs='+', type=Path,
                         help='files to add to playlist')
 
-    args = parser.parse_args(_argv)
+    if _argv:
+        args = parser.parse_args(*_argv)
+    else:
+        args = parser.parse_args()
 
     files: list[Path] = args.FILE
     output: Path | str = args.OUTPUT
@@ -42,19 +45,18 @@ def parse_commandline(*_argv: str):
 
     args.extension = ext
 
-    return Parameters(files=files, output=output, args=args, format_=ext)
+    return Parameters(files=files, output=output, format_=ext, title=args.title)
 
 def main():
     # Main function.
     params = parse_commandline()
-    args = params.args
 
-    ext = args.extension
+    fmt = params.format_
     files = params.files
     output = params.output
 
-    PlaylistClass = pl_get_playlist(ext)
-    playlist = PlaylistClass(shuffle_list(files), title=args.title)
+    PlaylistClass = pl_get_playlist(fmt)
+    playlist = PlaylistClass(shuffle_list(files), title=params.title)
 
     if output == '-':
         print(playlist.get_string())
