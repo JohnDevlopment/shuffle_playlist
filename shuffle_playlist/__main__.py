@@ -60,6 +60,11 @@ def main():
 
     if output == '-':
         print(playlist.get_string())
+        return
+
+    # Write to file
+    with open(output, 'wt') as fd:
+        fd.write(playlist.get_string())
 
 if __name__ == "__main__":
     main()
