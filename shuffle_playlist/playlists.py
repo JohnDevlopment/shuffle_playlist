@@ -71,6 +71,27 @@ class Playlist(ABC):
     def get_string(self) -> str:
         """Return the playlist file as a string."""
 
+class MplPlaylist(Playlist):
+    """Represents a Mpl playlist format."""
+
+    def __init__(self, items: list[Path], **kw):
+        """
+        Construct mpl (MPlayer) playlist from ITEMS.
+
+        Each index in ITEMS should be a Path to a file.
+
+        **KW is captures keyword options for Playlist.
+        """
+        super().__init__(items, **kw)
+
+    def get_string(self) -> str:
+        msgList: list[str] = []
+        for entry in self.entries:
+            _file = Path(entry.filename).resolve()
+            msgList.append(str(_file))
+
+        return "\n".join(msgList)
+
 class M3UPlaylist(Playlist):
     """Represents a M3u playlist format."""
 
@@ -118,7 +139,8 @@ PlaylistType = Type[Playlist]
 PlaylistEntryType = Type[PlaylistEntry]
 
 PLAYLIST_FACTORIES = {
-    'm3u': M3UPlaylist
+    'm3u': M3UPlaylist,
+    'mpl': MplPlaylist
 }
 
 PLAYLIST_ENTRY_FACTORIES = {
