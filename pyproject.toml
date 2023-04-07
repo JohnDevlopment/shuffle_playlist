@@ -15,7 +15,7 @@ classifiers = [
     Programming Language :: Python :: 3.11
     Programming Language :: Python :: Implementation :: CPython
 ]
-dependencies = ["mutagen>=1.46.0"]
+dependencies = ["mutagen", "soundfile"]
 
 [project.urls]
 Home = "https://github.com/JohnDevlopment/shuffle_playlist"
