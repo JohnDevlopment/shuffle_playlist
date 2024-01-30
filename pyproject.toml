@@ -1,22 +1,18 @@
+[tool.poetry]
+name = "shuffle-playlist"
+version = "1.0a2"
+description = "Create a playlist where the files are shuffled around."
+authors = ["JohnDevlopment <50782633+JohnDevlopment@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+mutagen = ">=1.46.0"
+requests = ">=2.28.2"
+
+[tool.poetry.group.dev.dependencies]
+build = ">=0.10.0"
+
 [build-system]
-requires = ["flit_core >=3.42,<4"]
-build-backend = "flit_core.buildapi"
-
-[project]
-name = "foobar"
-dynamic = ["version", "description"]
-authors = [{name = "John Russell", email = "johndevlopment7@gmail.com"}]
-classifiers = [
-    Development Status :: 3 - Alpha
-    Programming Language :: Python :: 3 :: Only
-    Programming Language :: Python :: 3.8
-    Programming Language :: Python :: 3.9
-    Programming Language :: Python :: 3.10
-    Programming Language :: Python :: 3.11
-    Programming Language :: Python :: Implementation :: CPython
-]
-dependencies = ["mutagen", "soundfile"]
-
-[project.urls]
-Home = "https://github.com/JohnDevlopment/shuffle_playlist"
-"Bug Tracker" = "https://github.com/JohnDevlopment/shuffle_playlist/issues"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
