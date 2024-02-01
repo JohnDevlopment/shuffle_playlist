@@ -20,7 +20,7 @@ def parse_commandline(*_argv: str):
     parser = ArgumentParser(prog='shuffle_playlist', description="A tool for creating shuffled playlists")
     parser.add_argument('-t', '--title', help='set the title of the playlist')
     parser.add_argument('-f', '--format', help='playlist format')
-    parser.add_argument('OUTPUT', help='file to write playlist to')
+    parser.add_argument('OUTPUT', help='file to write playlist to (or - for stdout)')
     parser.add_argument('FILE', nargs='+', type=Path,
                         help='files to add to playlist')
 
