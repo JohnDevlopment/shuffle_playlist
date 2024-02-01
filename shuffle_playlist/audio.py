@@ -3,11 +3,15 @@
 # Ogg Vorbis
 from mutagen.oggvorbis import OggVorbis, OggVorbisInfo
 from mutagen._vorbis import VCommentDict
-
 from soundfile import SoundFile
-from pathlib import PurePath
-from typing import Protocol, Union, cast
+from typing import TypedDict, Protocol, cast
 import re
+
+class TagDict(TypedDict):
+    length: float
+    channels: int
+    samplerate: int
+    bitrate: int
 
 class ExSoundFile(SoundFile):
     @property
@@ -18,7 +22,7 @@ class ExSoundFile(SoundFile):
 class TagParser(Protocol):
     """A protocol for defining tag objects."""
 
-    def get_tags(self) -> dict:
+    def get_tags(self) -> dict[str, str]:
         """
         Returns a dictionary with some metadata on the file.
 
@@ -29,7 +33,7 @@ class TagParser(Protocol):
         """
         ...
 
-    def get_info(self) -> dict:
+    def get_info(self) -> TagDict:
         """
         Returns a dictionary with information about the file.
 
@@ -45,12 +49,12 @@ class OggTagParser:
     def __init__(self, filename: str):
         self.__ogg = OggVorbis(filename)
 
-    def get_tags(self) -> dict:
+    def get_tags(self) -> dict[str, str]:
         tags: VCommentDict = cast(VCommentDict, self.__ogg.tags)
         res = {k:v for (k,v) in tags}
         return res
 
-    def get_info(self) -> dict:
+    def get_info(self) -> TagDict:
         info: OggVorbisInfo = cast(OggVorbisInfo, self.__ogg.info)
         res = {
             'length': info.length,
@@ -58,7 +62,7 @@ class OggTagParser:
             'samplerate': info.sample_rate,
             'bitrate': info.bitrate
         }
-        return res
+        return TagDict(**res)
 
 AUDIO_TAG_FACTORIES = {
     'ogg': OggTagParser
