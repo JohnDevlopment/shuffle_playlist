@@ -45,7 +45,12 @@ def parse_commandline(_argv: Optional[Sequence[str]]=None):
 
     args.extension = ext
 
-    return Parameters(files=files, output=output, format_=ext, title=args.title)
+    return Parameters(
+        files=recurse_subdirs(*files),
+        output=output,
+        format_=ext,
+        title=args.title
+    )
 
 def main():
     # Main function.

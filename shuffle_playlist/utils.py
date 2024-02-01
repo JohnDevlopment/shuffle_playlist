@@ -31,6 +31,10 @@ class FileDescriptor(Protocol):
     def write(self, data: str | bytes):
         """Write DATA to file."""
 
+class Pathlike(Protocol):
+    def __fspath__(self) -> str:
+        ...
+
 _ext_re = re.compile(r'\.(\w+)')
 
 def get_file_extension(_file: Path | str) -> Optional[str]:
@@ -49,6 +53,42 @@ def get_file_extension(_file: Path | str) -> Optional[str]:
         m = _ext_re.search(sfile)
         return m[1] if m else None
 
+def _recurse_subdirs(subdir: Path):
+    if subdir.is_dir():
+        res: list[Path] = []
+        for fp in subdir.iterdir():
+            if fp.is_dir():
+                temp = _recurse_subdirs(fp)
+                assert isinstance(temp, list)
+                res.extend(temp)
+            else:
+                res.append(fp)
+        return res
+
+    # Not a directory
+    return subdir
+
+def recurse_subdirs(*subdirs: str | Pathlike) -> list[Path]:
+    """
+    Recurse through *SUBDIRS.
+
+    Return a list of files from recursing through each
+    directory in *SUBDIRS, and each subdirectory of
+    that directory. If an element of *SUBDIRS is a
+    file, then it is added to the resulting list
+    unchanged.
+    """
+    files = []
+    for subdir in subdirs:
+        temp = _recurse_subdirs(Path(subdir).resolve())
+        if isinstance(temp, list):
+            files.extend(temp)
+        else:
+            files.append(temp)
+
+    files.sort()
+    return files
+
 def shuffle_list(values: list) -> list:
     """Shuffles the items in a list."""
     random.shuffle(values)
@@ -62,5 +102,6 @@ __all__ = [
 
     # Functions
     'get_file_extension',
+    'recurse_subdirs',
     'shuffle_list'
 ]
