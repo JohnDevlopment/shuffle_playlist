@@ -6,7 +6,7 @@ authors = ["JohnDevlopment <50782633+JohnDevlopment@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.9"
 mutagen = ">=1.46.0"
 requests = ">=2.28.2"
 soundfile = "^0.12.1"
