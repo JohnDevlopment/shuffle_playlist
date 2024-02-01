@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 from dataclasses import dataclass
 from .utils import *
 from .playlists import get_playlist as pl_get_playlist
@@ -16,7 +16,7 @@ class Parameters:
     format_: str
     title: Optional[str]
 
-def parse_commandline(*_argv: str):
+def parse_commandline(_argv: Optional[Sequence[str]]=None):
     parser = ArgumentParser(prog='shuffle_playlist', description="A tool for creating shuffled playlists")
     parser.add_argument('-t', '--title', help='set the title of the playlist')
     parser.add_argument('-f', '--format', help='playlist format')
@@ -25,7 +25,7 @@ def parse_commandline(*_argv: str):
                         help='files to add to playlist')
 
     if _argv:
-        args = parser.parse_args(*_argv)
+        args = parser.parse_args(_argv)
     else:
         args = parser.parse_args()
 
