@@ -10,6 +10,7 @@ python = ">=3.9"
 mutagen = ">=1.46.0"
 requests = ">=2.28.2"
 soundfile = "^0.12.1"
+jsnake = {path = "jsnake-0.1-py3-none-any.whl"}
 
 [tool.poetry.group.dev.dependencies]
 build = ">=0.10.0"
