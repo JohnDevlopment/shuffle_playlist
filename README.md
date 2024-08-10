@@ -15,3 +15,6 @@ Creates a shuffled m3u playlist from the files provided.
 setup.py build
 setup.py install
 ```
+
+# NOTE
+This repository is now archived and will no longer be updated.
